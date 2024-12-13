@@ -106,14 +106,13 @@ RUN git clone -b v2024.05.31 https://github.com/icl-utk-edu/lapackpp.git /tmp/la
 # Install heFFTe
 FROM base AS heffte
 
-RUN git clone -b v2.4.0 https://github.com/icl-utk-edu/heffte.git /tmp/heffte #&& \
-   # cd /tmp/heffte && \
-    #mkdir build && cd build && \
-    CXXFLAGS="-fno-lto" CFLAGS="-fno-lto" \
-  #  cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DHeffte_ENABLE_CUDA=ON -DCMAKE_INSTALL_PREFIX=/usr .. && \
-   # make -j$(nproc) && \
-    #make install && \
-       #rm -rf /tmp/heffte
+RUN git clone -b v2.4.0 https://github.com/icl-utk-edu/heffte.git /tmp/heffte && \
+    cd /tmp/heffte && \
+    mkdir build && cd build && \
+    cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DHeffte_ENABLE_CUDA=ON -DCMAKE_INSTALL_PREFIX=/usr .. && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /tmp/heffte
 
 # Final Image
 FROM base AS final
@@ -122,7 +121,7 @@ FROM base AS final
 COPY --from=c-blosc /usr /usr
 COPY --from=adios2 /usr /usr
 COPY --from=blaspp_lapackpp /usr /usr
-#COPY --from=heffte /usr /usr
+COPY --from=heffte /usr /usr
 
 # Create and activate Python virtual environment
 RUN python3 -m venv /opt/venv && \
